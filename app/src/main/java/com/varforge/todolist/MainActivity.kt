@@ -8,6 +8,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -90,6 +91,15 @@ fun MainPage(modifier: Modifier = Modifier) {
     }
     val clickedItemIndex = remember {
         mutableIntStateOf(0)
+    }
+    val updateDialogStatus = remember {
+        mutableStateOf(false)
+    }
+    val clickedItem = remember {
+        mutableStateOf("")
+    }
+    val textDialogStatus = remember {
+        mutableStateOf(false)
     }
 
     // modifier = modifier instead of modifier = Modifier,
@@ -183,12 +193,21 @@ fun MainPage(modifier: Modifier = Modifier) {
                                 fontSize = 10.sp,
                                 maxLines = 2,
                                 overflow = TextOverflow.Ellipsis,
-                                modifier = Modifier.width(300.dp)
+                                modifier = Modifier
+                                    .width(300.dp)
+                                    .clickable{
+                                        clickedItem.value = item
+                                        textDialogStatus.value = true
+                                    }
                                 )
 
                             Row() {
                                 IconButton(
-                                    onClick = {}
+                                    onClick = {
+                                        updateDialogStatus.value = true
+                                        clickedItemIndex.intValue = index
+                                        clickedItem.value = item
+                                    }
                                 ){
                                     Icon(Icons.Filled.Edit,
                                         contentDescription = "edit",
@@ -243,6 +262,69 @@ fun MainPage(modifier: Modifier = Modifier) {
                 dismissButton = {
                     TextButton(onClick = {deleteDialogStatus.value = false}) {
                         Text(text = "NO")
+                    }
+                }
+            )
+
+        }
+
+        if (updateDialogStatus.value){
+
+            AlertDialog(
+                onDismissRequest = {updateDialogStatus.value = false},
+                title = {
+                    Text(text = "Update")
+                },
+                text = {
+                    TextField(
+                        value = clickedItem.value,
+                        onValueChange = {clickedItem.value = it}
+                    )
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            itemList[clickedItemIndex.intValue] = clickedItem.value
+                            writeData(itemList,myContext)
+                            updateDialogStatus.value = false
+                            Toast.makeText(
+                                myContext,
+                                "Item is updated",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    ) {
+                        Text(text = "YES")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = {updateDialogStatus.value = false}) {
+                        Text(text = "NO")
+                    }
+                }
+            )
+
+        }
+
+        if (textDialogStatus.value){
+
+            AlertDialog(
+                onDismissRequest = {textDialogStatus.value = false},
+                title = {
+                    Text(text = "TODO Item")
+                },
+                text = {
+                    Text(text = clickedItem.value)
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+
+                            textDialogStatus.value = false
+
+                        }
+                    ) {
+                        Text(text = "OK")
                     }
                 }
             )
