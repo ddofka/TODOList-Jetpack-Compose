@@ -23,18 +23,23 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,6 +55,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.DialogProperties
 import com.varforge.todolist.ui.theme.TODOListTheme
 
 class MainActivity : ComponentActivity() {
@@ -68,6 +74,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainPage(modifier: Modifier = Modifier) {
 
@@ -78,6 +85,12 @@ fun MainPage(modifier: Modifier = Modifier) {
     }
     val itemList = readData(myContext)
     val focusedManager = LocalFocusManager.current
+    val deleteDialogStatus = remember {
+        mutableStateOf(false)
+    }
+    val clickedItemIndex = remember {
+        mutableIntStateOf(0)
+    }
 
     // modifier = modifier instead of modifier = Modifier,
     // as "modifier" is passed from scaffold so we can use it
@@ -183,7 +196,10 @@ fun MainPage(modifier: Modifier = Modifier) {
                                 }
 
                                 IconButton(
-                                    onClick = {}
+                                    onClick = {
+                                        deleteDialogStatus.value = true
+                                        clickedItemIndex.intValue = index
+                                    }
                                 ){
                                     Icon(Icons.Filled.Delete,
                                         contentDescription = "delete",
@@ -193,6 +209,41 @@ fun MainPage(modifier: Modifier = Modifier) {
                         }
                     }
 
+                }
+            )
+
+        }
+
+        if (deleteDialogStatus.value){
+
+            AlertDialog(
+                onDismissRequest = {deleteDialogStatus.value = false},
+                title = {
+                    Text(text = "Delete")
+                },
+                text = {
+                    Text(text = "Do you want to delte this item from the list?")
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            itemList.removeAt(clickedItemIndex.intValue)
+                            writeData(itemList,myContext)
+                            deleteDialogStatus.value = false
+                            Toast.makeText(
+                                myContext,
+                                "Item is removed from the list",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    ) {
+                        Text(text = "YES")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = {deleteDialogStatus.value = false}) {
+                        Text(text = "NO")
+                    }
                 }
             )
 
