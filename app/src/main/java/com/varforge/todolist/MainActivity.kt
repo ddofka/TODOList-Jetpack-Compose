@@ -2,6 +2,7 @@ package com.varforge.todolist
 
 import android.os.Bundle
 import android.widget.Space
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -40,6 +41,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -68,12 +71,13 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainPage(modifier: Modifier = Modifier) {
 
+    val myContext = LocalContext.current
+
     val todoName = remember {
         mutableStateOf("")
     }
-    val itemList = remember {
-        mutableStateListOf("Learn Kotlin","Lear Compose")
-    }
+    val itemList = readData(myContext)
+    val focusedManager = LocalFocusManager.current
 
     // modifier = modifier instead of modifier = Modifier,
     // as "modifier" is passed from scaffold so we can use it
@@ -112,7 +116,16 @@ fun MainPage(modifier: Modifier = Modifier) {
             Spacer(modifier = Modifier.width(5.dp))
 
             Button(
-                onClick = {},
+                onClick = {
+                    if (todoName.value.isNotEmpty()){
+                        itemList.add(todoName.value)
+                        writeData(itemList,myContext)
+                        todoName.value = ""
+                        focusedManager.clearFocus()
+                    }else{
+                        Toast.makeText(myContext, "Please enter a TODO", Toast.LENGTH_SHORT).show()
+                    }
+                },
                 modifier = Modifier
                     .weight(3F)
                     .height(60.dp),
