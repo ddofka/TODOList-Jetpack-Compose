@@ -174,12 +174,20 @@ fun MainPage(modifier: Modifier = Modifier) {
                                 )
 
                             Row() {
-                                IconButton(onClick = {}) {
-                                    Icon(Icons.Filled.Edit, contentDescription = "edit", tint = Color.White)
+                                IconButton(
+                                    onClick = {}
+                                ){
+                                    Icon(Icons.Filled.Edit,
+                                        contentDescription = "edit",
+                                        tint = Color.White)
                                 }
 
-                                IconButton(onClick = {}) {
-                                    Icon(Icons.Filled.Delete, contentDescription = "delete", tint = Color.White)
+                                IconButton(
+                                    onClick = {}
+                                ){
+                                    Icon(Icons.Filled.Delete,
+                                        contentDescription = "delete",
+                                        tint = Color.White)
                                 }
                             }
                         }
